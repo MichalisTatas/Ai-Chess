@@ -5,7 +5,85 @@ import chess
 from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QApplication, QWidget
-# from PyQt5 import *
+
+def evaluationFunction(board, player):
+    #     #simple evaluation functon for start 
+    #     # takes into consideration only pieces value
+    for i in range(64):
+        print("evuala")
+        score=0
+        piece = board.piece_at(i)
+        if piece is not None:
+            if piece == "P":
+                score = score - 1
+            if piece == "N":
+                score = score - 2
+            if piece == "B":
+                score = score - 3
+            if piece == "R":
+                score = score - 4
+            if piece == "Q":
+                score = score - 5
+            if piece == "K":
+                score = score - 6
+            if piece == "p":
+                score = score + 1
+            if piece == "n":
+                score = score + 2
+            if piece == "b":
+                score = score + 3
+            if piece == "r":
+                score = score + 4
+            if piece == "q":
+                score = score + 5
+            if piece == "k":
+                score = score + 6
+    return score
+
+def minimax(board, depth, player, a, b):              
+        # minimax algorithm with alpha beta pruning
+        #black is maximizing player
+    if depth == 0:
+        return evaluationFunction(board, player)
+    if player == 'ai' :
+        maxEvaluation = -float("inf")
+        for s in list(board.legal_moves):
+            board.push(s)
+            evaluation = minimax(board, depth, 'human', a, b)
+            board.pop()
+            maxEvaluation = max(maxEvaluation, evaluation)
+            a = max(a, maxEvaluation)
+            if b < a:
+                return maxEvaluation
+        return maxEvaluation
+    else: 
+        minEvaluation = float("inf")
+        for s in list(board.legal_moves):
+            board.push(s)
+            evaluation = minimax(board, depth-1, 'ai', a, b)
+            board.pop()
+            minEvaluation = min(minEvaluation, evaluation)
+            b = min(b, minEvaluation)
+            if b < a:
+                return minEvaluation
+        return minEvaluation
+
+def playerMove(board):
+    a = -float("inf")
+    b = float("inf")
+    bestScore = -float("inf")        
+    
+    for s in list(board.legal_moves):
+        board.push(s)
+        score=minimax(board, 2, 'human', a, b)
+        board.pop()
+        if score > bestScore:
+            bestScore = score
+            bestMove = s
+        a = max(a, bestScore)
+    board.push(bestMove)
+
+
 
 class MainWindow(QWidget):
     """
@@ -54,13 +132,7 @@ class MainWindow(QWidget):
                         move = chess.Move.from_uci("{}{}".format(self.pieceToMove[1], coordinates))
                         if move in self.board.legal_moves:
                             self.board.push(move)
-                            # print(self.board.pieces(piece_type=1,color=True))
-                            # m=0
-                            # for i in self.board.pieces(piece_type=1,color=True):
-                            #     if i == 1:
-                            #         m=m+1
-                            # print(m)
-                            self.playerMove()
+                            playerMove(self.board)
                         piece = None
                         coordinates = None
                     self.pieceToMove = [piece, coordinates]
@@ -75,65 +147,6 @@ class MainWindow(QWidget):
         self.drawBoardSvg = self.widgetSvg.load(self.boardSvg)
 
         return self.drawBoardSvg
-
-    def minimax(self, depth, player, a, b):              
-        # minimax algorithm with alpha beta pruning
-        #black is maximizing player
-
-        #minimax problem successor is move and not state
-        #fix this and then evaluation function
-
-        if depth == 0:
-            return self.evaluationFunction(player)
-
-        if player == 'ai' :
-            maxEvaluation = -float("inf")
-            for successor in self.board.legal_moves:
-                b = self.board.san(successor)
-                evaluation = minimax(b, depth, 'human', a, b)
-                maxEvaluation = max(maxEvaluation, evaluation)
-                a = max(a, maxEvaluation)
-                if b < a:
-                    return maxEvaluation
-            return maxEvaluation
-
-        else: 
-            minEvaluation = float("inf")
-            for successor in self.board.legal_moves:
-                b = self.board.san(successor)
-                evaluation = minimax(b, depth-1, 'ai', a, b)
-                minEvaluation = min(minEvaluation, evaluation)
-                b = min(b, minEvaluation)
-                if b < a:
-                    return minEvaluation
-            return minEvaluation
-
-    def playerMove(self):
-        # print(self.board.pseudo_legal_moves)
-        a = -float("inf")
-        b = float("inf")
-        bestScore = -float("inf")
-        
-        for successor in self.board.legal_moves:
-            b = self.board.san(successor)
-            score = minimax(b, 3, 'human', a, b)
-            if score > bestScore:
-                bestScore = score
-                bestMove = successor
-            a = max(a, bestScore)
-        move = chess.Move.from_uci(bestMove)
-        
-
-
-    def evaluationFunction(self, player):
-    #     #simple evaluation functon for start 
-    #     # takes into consideration only pieces value
-        if player == 'human':   #white for the time being
-            return 5
-        else :        #ai so black pieces for the time being
-            return 5
-
-
 
 
 if __name__ == "__main__":
