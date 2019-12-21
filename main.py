@@ -6,57 +6,63 @@ from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QApplication, QWidget
 
+count=0
+
 def evaluationFunction(board, player):
     #     #simple evaluation functon for start 
     #     # takes into consideration only pieces value
-    for i in range(64):
-        print("evuala")
-        score=0
-        piece = board.piece_at(i)
-        if piece is not None:
-            if piece == "P":
-                score = score - 1
-            if piece == "N":
-                score = score - 2
-            if piece == "B":
-                score = score - 3
-            if piece == "R":
-                score = score - 4
-            if piece == "Q":
-                score = score - 5
-            if piece == "K":
-                score = score - 6
-            if piece == "p":
-                score = score + 1
-            if piece == "n":
-                score = score + 2
-            if piece == "b":
-                score = score + 3
-            if piece == "r":
-                score = score + 4
-            if piece == "q":
-                score = score + 5
-            if piece == "k":
-                score = score + 6
-    return score
+
+    return 5
+    # for i in range(64):
+    #     score=0
+    #     piece = board.piece_at(i)
+    #     if piece is not None:
+    #         if piece == "P":
+    #             score = score - 1
+    #         if piece == "N":
+    #             score = score - 2
+    #         if piece == "B":
+    #             score = score - 3
+    #         if piece == "R":
+    #             score = score - 4
+    #         if piece == "Q":
+    #             score = score - 5
+    #         if piece == "K":
+    #             score = score - 6
+    #         if piece == "p":
+    #             score = score + 1
+    #         if piece == "n":
+    #             score = score + 2
+    #         if piece == "b":
+    #             score = score + 3
+    #         if piece == "r":
+    #             score = score + 4
+    #         if piece == "q":
+    #             score = score + 5
+    #         if piece == "k":
+    #             score = score + 6
+    # return score
 
 def minimax(board, depth, player, a, b):              
         # minimax algorithm with alpha beta pruning
         #black is maximizing player
+    global count
+    count=count+1
+    print(count) 
     if depth == 0:
         return evaluationFunction(board, player)
     if player == 'ai' :
         maxEvaluation = -float("inf")
         for s in list(board.legal_moves):
             board.push(s)
-            evaluation = minimax(board, depth, 'human', a, b)
+            evaluation = minimax(cp, depth - 1, 'human', a, b)
             board.pop()
             maxEvaluation = max(maxEvaluation, evaluation)
             a = max(a, maxEvaluation)
             if b < a:
                 return maxEvaluation
         return maxEvaluation
-    else: 
+    else:
         minEvaluation = float("inf")
         for s in list(board.legal_moves):
             board.push(s)
@@ -71,11 +77,11 @@ def minimax(board, depth, player, a, b):
 def playerMove(board):
     a = -float("inf")
     b = float("inf")
-    bestScore = -float("inf")        
-    
+    bestScore = -float("inf")       
+
     for s in list(board.legal_moves):
         board.push(s)
-        score=minimax(board, 2, 'human', a, b)
+        score=minimax(board, 1, 'human', a, b)
         board.pop()
         if score > bestScore:
             bestScore = score
@@ -133,6 +139,7 @@ class MainWindow(QWidget):
                         if move in self.board.legal_moves:
                             self.board.push(move)
                             playerMove(self.board)
+                            # print(count)
                         piece = None
                         coordinates = None
                     self.pieceToMove = [piece, coordinates]
