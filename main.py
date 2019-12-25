@@ -3,15 +3,26 @@ import sys
 from evaluation import evaluationFunction
 
 import chess
-
+import time
 from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QApplication, QWidget
 
+# to do : 
+# when minimax finds a score > 0 so black is winning
+# terminate the funtion so it doesnt search the whole tree
+# maybe add iterative deepening to keep the depth of the tree flexible and increase or decrease accordingly
+# if use iterative deepening maybe store some results to not evaluate them again
+# add null move heuristic
+
+counter=0
+
 def minimax(board, depth, player, a, b):              
+    global counter
         # minimax algorithm with alpha beta pruning
-        #black is maximizing player
+        # black is maximizing player
     if depth == 0 or board.is_game_over():
+        counter = counter +1
         return evaluationFunction(board, player)
     if player == 'ai' :
         maxEvaluation = -float("inf")
@@ -43,7 +54,7 @@ def playerMove(board):
 
     for s in list(board.legal_moves):
         board.push(s)
-        score=minimax(board, 2, 'human', a, b)
+        score=minimax(board, 3, 'human', a, b)
         board.pop()
         if score > bestScore:
             bestScore = score
@@ -101,7 +112,10 @@ class MainWindow(QWidget):
                         if move in self.board.legal_moves:
                             self.board.push(move)
                             self.setWindowTitle("Ai making move")
+                            time1=time.time()
                             playerMove(self.board)
+                            time2=time.time()
+                            print('Ai move took {:.3f} seconds and reached {:d} terminal states'.format((time2-time1),counter))
                             self.setWindowTitle("Chess GUI")
                         piece = None
                         coordinates = None
@@ -124,3 +138,17 @@ if __name__ == "__main__":
     window = MainWindow()
     window.show()
     sys.exit(chessGui.exec_())
+
+
+
+
+
+
+
+# minimax with a-b pruning about 25 s in average for depth =3 i.e. 2 moves for each player 
+
+# To avoid using the null-move heuristic in zugzwang positions, most chess-playing programs that use the null-move heuristic put restrictions on its use. Such restrictions often include not using the null-move heuristic if
+# the side to move is in check
+# the side to move has only its king and pawns remaining
+# the side to move has a small number of pieces remaining
+# the previous move in the search was also a null move.
