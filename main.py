@@ -8,61 +8,6 @@ from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QApplication, QWidget
 
-# to do : 
-# when minimax finds a score > 0 so black is winning
-# terminate the funtion so it doesnt search the whole tree
-# maybe add iterative deepening to keep the depth of the tree flexible and increase or decrease accordingly
-# if use iterative deepening maybe store some results to not evaluate them again
-# add null move heuristic
-
-counter=0
-
-def minimax(board, depth, player, a, b):              
-    global counter
-        # minimax algorithm with alpha beta pruning
-        # black is maximizing player
-    if depth == 0 or board.is_game_over():
-        counter = counter +1
-        return evaluationFunction(board, player)
-    if player == 'ai' :
-        maxEvaluation = -float("inf")
-        for s in list(board.legal_moves):
-            board.push(s)
-            evaluation = minimax(board, depth - 1, 'human', a, b)
-            board.pop()
-            maxEvaluation = max(maxEvaluation, evaluation)
-            a = max(a, maxEvaluation)
-            if b < a:
-                return maxEvaluation
-        return maxEvaluation
-    else:
-        minEvaluation = float("inf")
-        for s in list(board.legal_moves):
-            board.push(s)
-            evaluation = minimax(board, depth-1, 'ai', a, b)
-            board.pop()
-            minEvaluation = min(minEvaluation, evaluation)
-            b = min(b, minEvaluation)
-            if b < a:
-                return minEvaluation
-        return minEvaluation
-
-def playerMove(board):
-    a = -float("inf")
-    b = float("inf")
-    bestScore = -float("inf")       
-
-    for s in list(board.legal_moves):
-        board.push(s)
-        score=minimax(board, 3, 'human', a, b)
-        board.pop()
-        if score > bestScore:
-            bestScore = score
-            bestMove = s
-        a = max(a, bestScore)
-    board.push(bestMove)
-
-
 
 class MainWindow(QWidget):
     """
@@ -113,9 +58,11 @@ class MainWindow(QWidget):
                             self.board.push(move)
                             self.setWindowTitle("Ai making move")
                             time1=time.time()
-                            playerMove(self.board)
+                            from aiPlayer import AiPlayer
+                            a = AiPlayer()
+                            a.minimax(self.board)
                             time2=time.time()
-                            print('Ai move took {:.3f} seconds and reached {:d} terminal states'.format((time2-time1),counter))
+                            print('Ai move took {:.3f} seconds'.format((time2-time1)))
                             self.setWindowTitle("Chess GUI")
                         piece = None
                         coordinates = None
@@ -138,17 +85,3 @@ if __name__ == "__main__":
     window = MainWindow()
     window.show()
     sys.exit(chessGui.exec_())
-
-
-
-
-
-
-
-# minimax with a-b pruning about 25 s in average for depth =3 i.e. 2 moves for each player 
-
-# To avoid using the null-move heuristic in zugzwang positions, most chess-playing programs that use the null-move heuristic put restrictions on its use. Such restrictions often include not using the null-move heuristic if
-# the side to move is in check
-# the side to move has only its king and pawns remaining
-# the side to move has a small number of pieces remaining
-# the previous move in the search was also a null move.

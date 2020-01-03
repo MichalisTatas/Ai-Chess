@@ -28,7 +28,7 @@ def PiecesValue(board):
                     score = score - 5
                 elif piece == 'K':
                     score = score - 6
-                
+
                 # black pieces
                 elif piece == 'p':
                     score = score + 1
