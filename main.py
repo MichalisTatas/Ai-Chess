@@ -8,7 +8,6 @@ from PyQt5.QtCore import pyqtSlot, Qt
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QApplication, QWidget
 
-
 class MainWindow(QWidget):
     """
     Create a surface for the chessboard.
@@ -62,7 +61,7 @@ class MainWindow(QWidget):
                             a = AiPlayer()
                             a.minimax(self.board)
                             time2=time.time()
-                            print('Ai move took {:.3f} seconds'.format((time2-time1)))
+                            print('Ai move took {:.3f} seconds'.format(time2-time1))
                             self.setWindowTitle("Chess GUI")
                         piece = None
                         coordinates = None
