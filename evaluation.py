@@ -1,8 +1,7 @@
 import chess
 
 def evaluationFunction(board, player):
-    #     #simple evaluation functon for start 
-    #     # takes into consideration only pieces value
+
     return PiecesValue(board)
 
 def PiecesValue(board):
@@ -45,7 +44,7 @@ def PiecesValue(board):
     return score
 
 
-# WHITE PIECES
+# PIECES TABLES
 P = [
     0,  0 ,  0,  0,  0,  0,  0,  0,
     50, 50, 50, 50, 50, 50, 50, 50,

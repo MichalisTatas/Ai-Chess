@@ -3,16 +3,13 @@ counter = 0
 
 maxDepth = 5
 
-#to do:
-#add searching captures first
-#add killer heuristic
-
 class AiPlayer():
 
     def minimax(self,board):             
         a = -float("inf")
         b = float("inf")
         bestScore = -float("inf")   
+
         for s in list(board.legal_moves):
             board.push(s)
             score = self.min_value(board, 0, 'human', a, b, True)
@@ -38,9 +35,20 @@ class AiPlayer():
                 return evaluation
 
         movesList = list(board.legal_moves)
+        killerMovesList = [[None for x in range(2)] for y in range(maxDepth)] # 2 moves for each level
         num = 0
         i = 0
         for move in movesList :
+            if move == killerMovesList[depth][0] :
+                swap = movesList[num]
+                movesList[num] = move
+                movesList[i] = swap
+                num = num + 1
+            elif move == killerMovesList[depth][1]:
+                swap = movesList[num]
+                movesList[num] = move
+                movesList[i] = swap
+                num = num + 1
             if board.is_capture(move):
                 swap = movesList[num]
                 movesList[num] = move
@@ -56,6 +64,8 @@ class AiPlayer():
             maxEvaluation = max(maxEvaluation, evaluation)
             a = max(a, maxEvaluation)
             if b < a:
+                killerMovesList[depth][1] = killerMovesList[depth][0]
+                killerMovesList[depth][0] = move
                 return maxEvaluation
         return maxEvaluation
 
